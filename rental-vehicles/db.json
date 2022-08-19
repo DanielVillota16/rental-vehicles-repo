@@ -1,0 +1,101 @@
+{
+  "Admins": [
+    {
+      "id": 1,
+      "fullName": "Elon Musk",
+      "legalIdNumber": "1234567890",
+      "username": "elonm21",
+      "passwordHash": "asdf789",
+      "phoneNumber": "3216549870",
+      "email": "elonm21@gmail.com"
+    },
+    {
+      "id": 2,
+      "fullName": "Henry Ford",
+      "legalIdNumber": "9876543210",
+      "username": "henryf10",
+      "passwordHash": "qwer456",
+      "phoneNumber": "3159876541",
+      "email": "henryf10@gmail.com"
+    },
+    {
+      "id": 1002,
+      "fullName": "Jesus Daniel Villota",
+      "legalIdNumber": "1234567890",
+      "username": "jesusv16",
+      "passwordHash": "qwertyasdfghzxcv12",
+      "phoneNumber": "3152376960",
+      "email": "danielvillota1016@gmail.com"
+    }
+  ],
+  "Clients": [
+    {
+      "id": 1,
+      "fullName": "Daniel Villota",
+      "legalIdNumber": "1010149887",
+      "username": "danielv16",
+      "passwordHash": "zxcv123",
+      "phoneNumber": "3152371234",
+      "email": "danielv16@gmail.com"
+    },
+    {
+      "id": 2,
+      "fullName": "Diomedes Diaz",
+      "legalIdNumber": "1245782356",
+      "username": "diomedesd19",
+      "passwordHash": "asdf456",
+      "phoneNumber": "3119874532",
+      "email": "diomedesd19@gmail.com"
+    }
+  ],
+  "Vehicles": [
+    {
+      "id": 1,
+      "plate": "qwe123",
+      "type": "Car",
+      "model": "Tesla Model X",
+      "status": 0,
+      "pricePerHour": 10,
+      "pricePerDay": 100,
+      "ownerId": 1
+    },
+    {
+      "id": 2,
+      "plate": "asd456",
+      "type": "Car",
+      "model": "Tesla Model S",
+      "status": 1,
+      "pricePerHour": 8,
+      "pricePerDay": 80,
+      "ownerId": 1
+    },
+    {
+      "id": 3,
+      "plate": "zxc789",
+      "type": "Car",
+      "model": "Ford F-150",
+      "status": 0,
+      "pricePerHour": 12,
+      "pricePerDay": 100,
+      "ownerId": 2
+    }
+  ],
+  "requests": [
+    {
+      "id": 1,
+      "status": 2,
+      "hoursOfRent": 6,
+      "daysOfRent": 0,
+      "vehicleId": 1,
+      "clientId": 1
+    },
+    {
+      "id": 2,
+      "status": 3,
+      "hoursOfRent": 10,
+      "daysOfRent": 1,
+      "vehicleId": 3,
+      "clientId": 2
+    }
+  ]
+}
