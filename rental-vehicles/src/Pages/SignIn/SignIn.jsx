@@ -3,10 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { useEffect } from "react";
 import { roles } from '../../Constants/constants';
 import { signInService } from '../../Services';
+import { alert } from '../../Common/alert';
 
 const { Option } = Select;
 
-const SignIn = () => {
+const SignIn = ({signIn}) => {
 
   useEffect(() => {
     
@@ -17,7 +18,14 @@ const SignIn = () => {
   
   const onFinish = (values) => {
     const { UserRole , ...user } = values;
-    signInService.saveUser(UserRole, user);
+    try {
+      signInService.saveUser(UserRole, user);
+      signIn();
+    } catch (error) {
+      console.log(error);
+      alert.unknownError("There was an error trying to save your user, please review the fields and try again.");
+    }
+
   }
 
   return (
@@ -144,7 +152,7 @@ const SignIn = () => {
           <Select
             allowClear
             showSearch
-            placeholder="Select an option"
+            placeholder="Select a role"
             optionFilterProp="children"
             filterOption={(input, option) => option.children.toLowerCase().includes(input.toLowerCase())}
           >

@@ -1,34 +1,34 @@
-import { Avatar, Button, List, Space } from 'antd';
-import { CheckOutlined, CloseOutlined } from "@ant-design/icons";
-import { images, TYPES } from '../../Constants/constants';
+import { Avatar, Button, List } from 'antd';
+import { CheckCircleOutlined, CheckOutlined, CloseOutlined } from "@ant-design/icons";
+import { images, RequestStatus, RequestStatusIndex, TYPES } from '../../Constants/constants';
 import React from 'react';
 
 const AdminRequestItem = (props) => {
 
   const { id, status, type, model, plate, requester, time } = props.request;
-  const acceptRequest = props.deny;
+  const acceptRequest = props.acceptRequest;
+  const finishRequest = props.finishRequest;
 
-  const IconText = ({ icon, text, accept }) => (
-    <Button
-      onClick={acceptRequest(id, accept)}
-    >
-      <Space>
-        {React.createElement(icon)}
-        {text}
-      </Space>
-    </Button>
-  );
+  const pending = status===RequestStatusIndex.Pending;
 
+  const pendingButtons = [
+    <Button onClick={() => acceptRequest(id, true)} icon={<CheckOutlined />} type='primary' >Accept</Button>,
+    <Button onClick={() => acceptRequest(id, false)} icon={<CloseOutlined />} type='danger' >Deny</Button>
+  ]
+
+  const onGoingButton = [
+    <Button onClick={() => finishRequest(id)} icon={<CheckCircleOutlined />} type='primary' >Finish</Button>
+  ]
+
+  // backgroundColor: '#f5ecdf'
   return (
     <List.Item
+      style={{ borderRadius: '10px' }}
       key={id}
-      actions={[
-        <IconText icon={CheckOutlined} text="Approve" accept={true} key="approve" />,
-        <IconText icon={CloseOutlined} text="Deny" accept={false} key="deny" />,
-      ]}
+      actions={ pending ? pendingButtons: onGoingButton }
       extra={
         <img
-          width={272}
+          width={200}
           alt={type}
           src={images[TYPES[type]].url}
         />
@@ -39,13 +39,11 @@ const AdminRequestItem = (props) => {
         title={requester}
         description={`Is requesting your ${model}`}
       />
-      {
-        <div>
-          <p>{`Plate: ${plate}`}</p>
-          <p>{`Time requested: ${time}`}</p>
-          <p>{`Status: ${status}`}</p>
-        </div>
-      }
+      <div>
+        <p><b>Plate:</b> {plate}</p>
+        <p><b>Time requested:</b> {time}</p>
+        <p><b>Status:</b> {RequestStatus[status]}</p>
+      </div>
     </List.Item>
   );
 }

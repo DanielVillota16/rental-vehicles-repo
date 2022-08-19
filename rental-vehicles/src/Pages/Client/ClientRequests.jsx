@@ -1,10 +1,10 @@
-import AdminRequestItem from "./AdminRequestItem";
 import { List } from "antd";
 import React, { useCallback, useEffect, useState } from "react";
-import { adminService } from "../../Services";
+import { adminService, clientService } from "../../Services";
 import { RequestStatusIndex } from "../../Constants/constants";
+import ClientRequestItem from "./ClientRequestItem";
 
-const AdminRequests = (props) => {
+const ClientRequests = (props) => {
 
   const [requests, setRequests] = useState([]);
   const typeOfRequests = props.type;
@@ -16,42 +16,33 @@ const AdminRequests = (props) => {
       for (let i = 0; i < rawRequests.length; i++) {
         const requestBelongsHere = rawRequests[i].status === RequestStatusIndex[typeOfRequests];
         if (!requestBelongsHere) continue;
-        const vehiclePromise = adminService.getOwnedVehicle(rawRequests[i].vehicleId);
-        const clientPromise = adminService.getClient(rawRequests[i].clientId);
-        await Promise.all([vehiclePromise, clientPromise]).then((values) => {
-          const [vehicle, client] = values;
-          processedRequests.push(convertRawRequest(rawRequests[i], vehicle, client));
-        });
+        const vehicle = await adminService.getOwnedVehicle(rawRequests[i].vehicleId);
+        processedRequests.push(convertRawRequest(rawRequests[i], vehicle));
       }
       setRequests(processedRequests);
-    }, [typeOfRequests]
+    }
+    , [typeOfRequests]
   );
 
-  const convertRawRequest = (rawRequest, vehicle, client) => {
+  const convertRawRequest = (rawRequest, vehicle) => {
     return {
       id: rawRequest.id,
       status: rawRequest.status,
       type: vehicle.type,
       model: vehicle.model,
       plate: vehicle.plate,
-      requester: client.fullName,
       time: `${rawRequest.daysOfRent} days and ${rawRequest.hoursOfRent} hours`
     }
   }
 
-  const retrieveRawRequests = async () => await adminService.getRequestsOfOwnedVehicles(localStorage.getItem("username"));
+  const retrieveRawRequests = async () => await clientService.getRequestsMade(localStorage.getItem("username"));
 
-  useEffect(()=>{
+  useEffect(() => {
     getProcessedRequests();
   }, [typeOfRequests, getProcessedRequests]);
 
-  const acceptRequest = async (id, accept) => {
-    await adminService.acceptRequest(id, accept);
-    getProcessedRequests();
-  }
-
-  const finishRequest = async (id) => {
-    await adminService.finishRequest(id);
+  const cancelRequest = async (id) => {
+    await clientService.cancelRequest(id);
     getProcessedRequests();
   }
 
@@ -67,10 +58,10 @@ const AdminRequests = (props) => {
       }}
       dataSource={requests}
       renderItem={request => (
-        <AdminRequestItem request={request} acceptRequest={acceptRequest} finishRequest={finishRequest} />
+        <ClientRequestItem request={request} cancelRequest={cancelRequest} />
       )}
     />
   );
 }
 
-export default AdminRequests;
+export default ClientRequests;

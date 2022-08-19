@@ -3,6 +3,7 @@ import { Button, Divider, Popconfirm, Table, Tooltip } from "antd";
 import { useEffect, useState } from "react";
 import { adminService } from "../../Services";
 import { useNavigate } from 'react-router-dom';
+import { VehicleStatus } from "../../Constants/constants";
 
 const AdminVehicles = () => {
 
@@ -10,15 +11,17 @@ const AdminVehicles = () => {
 
   const [data, setData] = useState([]);
   useEffect(() => {
-    getVehicles().then((vehicles)=>{
-      setData(vehicles);
-    });
+    getVehicles();
   }, []);
 
-  const getVehicles = async () => await adminService.getOwnedVehicles(localStorage.getItem("username"));
+  const getVehicles = async () => {
+    const vehicles = await adminService.getOwnedVehicles(localStorage.getItem("username"));
+    setData(vehicles);
+  }
 
-  function deleteVehicle(id){
+  function deleteVehicle(id) {
     adminService.deleteVehicle(id);
+    getVehicles();
   }
 
   const columns = [
@@ -41,20 +44,21 @@ const AdminVehicles = () => {
       title: 'Status',
       dataIndex: 'status',
       key: 'status',
+      render: (text, record) => (VehicleStatus[record.status])
     },
     {
-      title: 'Price Per Hour',
+      title: 'Price/Hour',
       dataIndex: 'pricePerHour',
       key: 'pricePerHour',
     },
     {
-      title: 'Price Per Day',
+      title: 'Price/Day',
       dataIndex: 'pricePerDay',
       key: 'pricePerDay',
     },
     {
       title: 'Action',
-      key: "action",
+      key: 'action',
       width: 150,
       align: "center",
       render: (text, record) => {
@@ -89,10 +93,20 @@ const AdminVehicles = () => {
     }
   ];
 
-
-
   return (
-    <Table className="container" columns={columns} dataSource={data} />
+    <div className="container">
+      <Table 
+        rowKey={(record) => record.id}
+        columns={columns} 
+        dataSource={data} 
+      />
+      <Button
+        type="primary"
+        onClick={() => navigate(`/admin/vehicle/new`)}
+      >ADD
+      </Button>
+    </div>
+
   );
 }
 

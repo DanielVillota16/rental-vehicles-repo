@@ -8,7 +8,7 @@ namespace RentalVehicles.Data.Repositories
     {
         public UserRepository(ApplicationDbContext dbContext) : base(dbContext) { }
 
-        public abstract User GetUserByUsername(string username);
+        public abstract User? GetUserByUsername(string username);
         //public abstract int? GetUserIdByUsername(string username);
 
     }

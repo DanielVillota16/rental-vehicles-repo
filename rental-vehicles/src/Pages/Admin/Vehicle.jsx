@@ -1,54 +1,51 @@
-import { Button, Form, Input } from "antd"
+import { Button, Form, Input, Select } from "antd"
 import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { alert } from '../../Common/alert';
+import { VehicleStatus, VehicleTypes } from "../../Constants/constants";
 import { adminService } from "../../Services";
+
+const { Option } = Select;
 
 const Vehicle = () => {
 
-  let navigate = useNavigate();
+  const navigate = useNavigate();
   const [form] = Form.useForm();
   const { vehicleId } = useParams();
 
-  var owner=-1;
+  const owner = localStorage.getItem("id");
 
   useEffect(() => {
-    console.log(vehicleId);
-    if(vehicleId){
-      getVehicle(vehicleId);
+    if (vehicleId) {
+      //getVehicle method code was put here to avoid warnings
+      const dataPromise = adminService.getOwnedVehicle(vehicleId);
+      dataPromise.then((data) => {
+        form.setFieldsValue({
+          ...data
+        });
+      });
     }
-  });
+  }, [form, vehicleId]);
 
-  const getVehicle = async (id) => {
-    const data = await adminService.getOwnedVehicle(id);
-    console.log(data);
-    const {ownerId} = data;
-    
-    owner=parseInt(ownerId,10);
-    console.log("owner: " + owner);
-    form.setFieldsValue({
-      ...data
-    });
-  }
+  //const getVehicle = async (id) => { }
 
   const onFinish = (values) => {
-    const vehicle = {
+    const newVehicle = {
       ...values,
-      id: parseInt(vehicleId),
-      status: parseInt(values.status),
-      ownerId: owner,
+      id: vehicleId,
+      ownerId: owner
     }
     if (vehicleId) {
-      editVehicle(vehicle);
+      editVehicle(newVehicle);
     } else {
-      saveVehicle(vehicle);
+      saveVehicle(newVehicle);
     }
   }
 
   const editVehicle = async (updatedVehicle) => {
     try {
       await adminService.updateVehicle(updatedVehicle);
-      navigate('/admin/vehicles');
+      navigate('/admin');
     } catch (error) {
       alert.unknownError();
     }
@@ -57,7 +54,7 @@ const Vehicle = () => {
   const saveVehicle = async (newVehicle) => {
     try {
       await adminService.saveVehicle(newVehicle);
-      navigate('/admin/vehicles');
+      navigate('/admin');
     } catch (error) {
       alert.unknownError();
     }
@@ -91,11 +88,19 @@ const Vehicle = () => {
           rules={[
             {
               required: true,
-              message: 'This field is necessary!', 
+              message: 'This field is necessary!',
             }
           ]}
         >
-          <Input />
+          <Select
+            allowClear
+            showSearch
+            placeholder="Select a type"
+            optionFilterProp="children"
+            filterOption={(input, option) => option.children.toLowerCase().includes(input.toLowerCase())}
+          >
+            {VehicleTypes.map((type, key) => <Option key={key} value={type}>{type}</Option>)}
+          </Select>
         </Form.Item>
         <Form.Item
           label="Model"
@@ -103,7 +108,7 @@ const Vehicle = () => {
           rules={[
             {
               required: true,
-              message: 'This field is necessary!', 
+              message: 'This field is necessary!',
             }
           ]}
         >
@@ -115,31 +120,39 @@ const Vehicle = () => {
           rules={[
             {
               required: true,
-              message: 'This field is necessary!', 
+              message: 'This field is necessary!',
             }
           ]}
         >
-          <Input />
+          <Select
+            allowClear
+            showSearch
+            placeholder="Select a status"
+            optionFilterProp="children"
+            filterOption={(input, option) => option.children.toLowerCase().includes(input.toLowerCase())}
+          >
+            {VehicleStatus.map((vehicleStatus, index) => <Option key={index} value={index}>{vehicleStatus}</Option>)}
+          </Select>
         </Form.Item>
         <Form.Item
-          label="Price Per Hour"
+          label="Price/Hour"
           name="pricePerHour"
           rules={[
             {
               required: true,
-              message: 'This field is necessary!', 
+              message: 'This field is necessary!',
             }
           ]}
         >
           <Input />
         </Form.Item>
         <Form.Item
-          label="Price Per Day"
+          label="Price Day"
           name="pricePerDay"
           rules={[
             {
               required: true,
-              message: 'This field is necessary!', 
+              message: 'This field is necessary!',
             }
           ]}
         >

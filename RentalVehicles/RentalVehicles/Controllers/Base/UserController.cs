@@ -21,6 +21,13 @@ namespace RentalVehicles.Controllers.Base
             this._configuration = configuration;
         }
 
+        [HttpGet("{username}/id")]
+        public ActionResult<int> GetIdByUsername(string username)
+        {
+            int? id = ((UserRepository<TUser>)repository).GetUserByUsername(username)?.Id;
+            return id;
+        }
+
         [HttpPost("register")]
         public async Task<ActionResult<UserDto>> Register([FromBody] CreateUserDto createUserDto)
         {

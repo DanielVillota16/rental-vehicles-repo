@@ -1,20 +1,32 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { LogIn, SignIn, Client, AdminRequests, AdminVehicles, Vehicle } from "./Pages"
+import { Vehicle } from "./Pages"
+
+import AdminLayout from "./Components/AdminLayout";
+import ClientLayout from "./Components/ClientLayout";
+import HomePage from "./Components/HomePage";
+
 import 'antd/dist/antd.min.css'
 import './App.css';
+import { useState } from "react";
 
 function App() {
+
+  const [loggedIn, setLoggedIn] = useState(localStorage.getItem(process.env.REACT_APP_SESSION_TOKEN_KEY) !== null);
+
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="signin" element={<SignIn/>} />
-        <Route path="login" element={<LogIn/>} />
-        <Route path="admin/requests" element={<AdminRequests/>} />
-        <Route path="admin/vehicles" element={<AdminVehicles/>} />
-        <Route path="admin/vehicle/new" element={<Vehicle/>} />
-        <Route path="admin/vehicle/:vehicleId" element={<Vehicle/>} />
-        <Route path="client" element={<Client/>} />
-        <Route path="*" element={<Navigate to="signin" replace />} />
+        <Route path="homepage" element={<HomePage logIn={(result) => setLoggedIn(result)} />} />
+        {
+          loggedIn &&
+          [
+            <Route path="client" element={<ClientLayout />} />,
+            <Route path="admin" element={<AdminLayout />} />,
+            <Route path="admin/vehicle/new" element={<Vehicle />} />,
+            <Route path="admin/vehicle/:vehicleId" element={<Vehicle />} />
+          ]
+        }
+        <Route path="*" element={<Navigate to="homepage" replace />} />
       </Routes>
     </BrowserRouter>
   );

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RentalVehicles.Controllers.Base;
 using RentalVehicles.Data.Repositories;
@@ -17,7 +18,7 @@ namespace RentalVehicles.Controllers
         {
         }
 
-        [HttpGet]
+        [HttpGet, Authorize]
         public async Task<ActionResult<List<VehicleDto>>> Get()
         {
             return await Get<VehicleDto>();

@@ -56,17 +56,25 @@ namespace RentalVehicles.Controllers
             return base.mapper.Map<List<RequestDto>>(res);
         }
 
-        [HttpGet("vehicles/{username}")]
+        [HttpGet("vehicles/{username}"), Authorize]
         public ActionResult<List<VehicleDto>> GetOwnedVehicles(string username)
         {
             var res = ((AdminRepository) repository).GetOwnedVehicles(username);
             return base.mapper.Map<List<VehicleDto>>(res);
         }
 
-        [HttpPut("request/{id:int}/{accept:bool}")]
+        [HttpPut("request/{id:int}/{accept:bool}"), Authorize]
         public async Task<ActionResult<bool>> ModifyRequest(int id, bool accept)
         {
             var res = await ((AdminRepository)repository).AcceptRequest(id, accept);
+            return Ok(res);
+        }
+
+        [HttpPut("request/{id:int}/finish"), Authorize]
+        public async Task<ActionResult<RequestDto>> FinishRequest(int id)
+        {
+            var res = await ((AdminRepository)repository).FinishRequest(id);
+            if (res == null) return BadRequest("Request not found");
             return Ok(res);
         }
 

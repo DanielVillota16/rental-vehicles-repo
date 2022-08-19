@@ -43,7 +43,7 @@ namespace RentalVehicles.Controllers
             return await Put<UpdateClientDto>(updateClientDto);
         }
 
-        [HttpDelete("{id:int}")]
+        [HttpDelete("{id:int}"), Authorize]
         public async Task<ActionResult> Delete(int id)
         {
             return await base.Delete(id);
@@ -54,6 +54,21 @@ namespace RentalVehicles.Controllers
         {
             var res = ((ClientRepository)repository).GetRequestsMade(username);
             return base.mapper.Map<List<RequestDto>>(res);
+        }
+
+        [HttpGet("vehicles/{id:int}"), Authorize]
+        public ActionResult<List<VehicleDto>> GetAvailableVehicles(int id)
+        {
+            var res = ((ClientRepository)repository).GetAvailableVehicles(id);
+            return base.mapper.Map<List<VehicleDto>>(res);
+        }
+
+        [HttpPut("request/{id:int}/cancel"), Authorize]
+        public async Task<ActionResult<RequestDto>> CancelRequest(int id) {
+            var res = await ((ClientRepository)repository).CancelRequest(id);
+            if (res == null) return BadRequest("Pending request not found");
+            var dto = base.mapper.Map<RequestDto>(res);
+            return dto;
         }
 
     }

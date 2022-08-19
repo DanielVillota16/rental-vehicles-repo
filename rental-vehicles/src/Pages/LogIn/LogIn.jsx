@@ -1,31 +1,29 @@
-import { Button, Form, Input, Select } from 'antd';
+import { Button, Form, Input, Radio } from 'antd';
 import { useNavigate } from 'react-router-dom';
-import { useEffect } from "react";
-import { ROLES, roles } from '../../Constants/constants';
-import { logInService } from '../../Services';
+import { ROLES } from '../../Constants/constants';
+import { adminService, logInService, clientService } from '../../Services';
 import { alert } from '../../Common/alert';
+import { LockOutlined, UserOutlined } from '@ant-design/icons';
 
-const { Option } = Select;
-
-const LogIn = () => {
-
-  useEffect(() => {
-
-  }, []);
+const LogIn = ({changeToSignIn, logIn}) => {
 
   let navigate = useNavigate();
   const [form] = Form.useForm();
 
   const onFinish = async (values) => {
-    const { UserRole , ...user } = values;
+    const { UserRole, ...user } = values;
     try {
       const response = await logInService.logIn(UserRole, user);
-      if(response.status===200){
+      const service = UserRole === ROLES.ADMIN ? adminService : clientService;
+      const id = await service.getId(user.Username);
+      if (response.status === 200) {
         const { data } = response;
         const token = `bearer ${data}`;
         localStorage.setItem(process.env.REACT_APP_SESSION_TOKEN_KEY, token);
         localStorage.setItem("username", user.Username);
-        const pageToGo = UserRole === ROLES.ADMIN ? '/admin/' : '/client';
+        localStorage.setItem("id", id);
+        const pageToGo = UserRole === ROLES.ADMIN ? '/admin' : '/client';
+        logIn(true);
         navigate(pageToGo);
       } else {
         alert.unknownError("Unsuccessful login! Review your username and password and try again.");
@@ -44,6 +42,9 @@ const LogIn = () => {
         layout="vertical"
         onFinish={onFinish}
         autoComplete="off"
+        initialValues={{
+          remember: true,
+        }}
       >
         <Form.Item
           label="Username"
@@ -59,7 +60,7 @@ const LogIn = () => {
             }
           ]}
         >
-          <Input />
+          <Input prefix={<UserOutlined />} placeholder="Username" />
         </Form.Item>
 
         <Form.Item
@@ -76,28 +77,27 @@ const LogIn = () => {
             }
           ]}
         >
-          <Input.Password />
+          <Input
+            prefix={<LockOutlined />}
+            type="password"
+            placeholder="Password"
+          />
         </Form.Item>
 
         <Form.Item
-          label="Role"
-          name="UserRole"
+          label='Role'
+          name='UserRole'
           rules={[
             {
               required: true,
               message: 'Please select a role!'
-            }
+            },
           ]}
         >
-          <Select
-            allowClear
-            showSearch
-            placeholder="Select an option"
-            optionFilterProp="children"
-            filterOption={(input, option) => option.children.toLowerCase().includes(input.toLowerCase())}
-          >
-            {roles.map((item, key) => <Option key={key} value={item.id}>{item.name}</Option>)}
-          </Select>
+          <Radio.Group>
+            <Radio value={ROLES.ADMIN}>Admin</Radio>
+            <Radio value={ROLES.CLIENT}>Client</Radio>
+          </Radio.Group>
         </Form.Item>
 
         <Form.Item >
@@ -115,13 +115,15 @@ const LogIn = () => {
           >
             Go Back
           </Button>
+          <Form.Item>
+            Or <button className='button-link' onClick={changeToSignIn}>register now!</button>
+          </Form.Item>
         </Form.Item>
 
       </Form>
-
     </div>
   );
-
+//<a href="/signin">register now!</a>
 }
 
 export default LogIn;

@@ -61,16 +61,17 @@ namespace RentalVehicles.Data.Repositories
         public async Task<bool> AcceptRequest(int id, bool accept)
         {
             var db = (ApplicationDbContext)base.dbContext;
-            var query = from admin in db.Admins
-                        join vehicle in db.Vehicles
-                        on admin.Id equals vehicle.OwnerId
-                        join request in db.Requests
-                        on vehicle.Id equals request.VehicleId
+            var query = from request in db.Requests
                         where request.Id == id
                         select request;
             if (query.Any()) {
                 var req = query.First();
                 req.Status = accept ? RequestStatus.Accepted : RequestStatus.Rejected;
+                var query2 = from vehicle in db.Vehicles
+                             where vehicle.Id == req.VehicleId
+                             select vehicle;
+                var veh = query2.First();
+                db.Entry(veh).State = EntityState.Modified;
                 db.Entry(req).State = EntityState.Modified;
                 await db.SaveChangesAsync();
                 return true;
@@ -79,5 +80,21 @@ namespace RentalVehicles.Data.Repositories
             
         }
 
+        public async Task<Request?> FinishRequest(int id)
+        {
+            var db = (ApplicationDbContext)base.dbContext;
+            var query = from request in db.Requests
+                        where request.Id == id
+                        select request;
+            if(query.Any())
+            {
+                var req = query.First();
+                req.Status = RequestStatus.Finished;
+                db.Entry(req).State= EntityState.Modified;
+                await db.SaveChangesAsync();
+                return req;
+            }
+            return null;
+        }
     }
 }
